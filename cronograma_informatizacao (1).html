@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma — Informatização das Rotinas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --teal-950:#0c2e2a;
+    --teal-800:#134a41;
+    --teal-700:#1c665a;
+    --teal-100:#dbe9e4;
+    --sand-050:#f6f2e8;
+    --sand-100:#efe8d7;
+    --ochre-600:#b97a26;
+    --ochre-100:#f3e2c4;
+    --coral-600:#a8433a;
+    --coral-100:#f2ddd9;
+    --ink-900:#1d2624;
+    --ink-500:#5c6863;
+    --line:#d9d0bd;
+    --card:#fffdf8;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--sand-050);
+    color:var(--ink-900);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:14px;
+    line-height:1.5;
+  }
+  h1,h2,h3,.disp{font-family:'Space Grotesk', sans-serif;}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    border-bottom:3px solid var(--teal-800);
+    padding-bottom:16px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+  }
+  header.top h1{
+    font-size:22px;
+    font-weight:700;
+    color:var(--teal-950);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  header.top p{margin:0;color:var(--ink-500);font-size:13px;}
+  .sync-status{
+    font-size:12px;
+    color:var(--teal-700);
+    background:var(--teal-100);
+    padding:4px 10px;
+    border-radius:3px;
+    white-space:nowrap;
+  }
+
+  .howto{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-left:4px solid var(--ochre-600);
+    padding:14px 16px;
+    margin-bottom:22px;
+    font-size:13px;
+    border-radius:2px;
+  }
+  .howto summary{cursor:pointer;font-weight:600;color:var(--teal-950);}
+  .howto p{margin:8px 0 0;color:var(--ink-500);}
+  .howto code{background:var(--sand-100);padding:1px 5px;border-radius:2px;}
+
+  .tabs{
+    display:flex;
+    gap:4px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .tab{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    padding:9px 16px;
+    background:transparent;
+    border:1px solid var(--line);
+    border-bottom:none;
+    color:var(--ink-500);
+    cursor:pointer;
+    border-radius:4px 4px 0 0;
+  }
+  .tab .d{display:block;font-weight:400;font-size:11px;margin-top:1px;}
+  .tab.active{background:var(--teal-950);color:#fff;border-color:var(--teal-950);}
+
+  .day-panel{display:none;}
+  .day-panel.active{display:block;}
+
+  .obs-bar{
+    background:var(--ochre-100);
+    border:1px solid var(--ochre-600);
+    color:#5c3c10;
+    padding:9px 14px;
+    border-radius:3px;
+    font-size:12.5px;
+    margin-bottom:16px;
+  }
+
+  .routine{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:5px;
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .routine-head{
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--teal-100);
+  }
+  .routine-head .num{
+    display:inline-block;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:11px;
+    color:var(--teal-950);
+    background:#fff;
+    border:1px solid var(--teal-700);
+    padding:1px 7px;
+    border-radius:20px;
+    margin-right:8px;
+  }
+  .routine-head .title{font-weight:600;color:var(--teal-950);}
+  .routine-head .meta{color:var(--ink-500);font-size:12.5px;margin-top:3px;}
+  .badges{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;}
+  .badge{
+    font-size:11px;
+    padding:2px 8px;
+    border-radius:20px;
+    border:1px solid var(--line);
+    color:var(--ink-500);
+    background:#fff;
+  }
+  .badge.warn{border-color:var(--ochre-600);color:#8a5a1a;background:var(--ochre-100);}
+
+  table.turnos{width:100%;border-collapse:collapse;font-size:13px;}
+  table.turnos th{
+    text-align:left;
+    font-weight:600;
+    color:var(--ink-500);
+    font-size:11px;
+    padding:8px 16px 4px;
+    border-bottom:1px solid var(--line);
+  }
+  table.turnos td{padding:6px 16px;border-bottom:1px solid #f0ebe0;vertical-align:top;}
+  table.turnos tr:last-child td{border-bottom:1px solid var(--line);}
+  .unidade-label{font-size:11px;font-weight:600;color:var(--teal-700);padding:8px 16px 2px;}
+
+  .controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    padding:12px 16px 14px;
+    background:var(--sand-100);
+  }
+  .field{display:flex;flex-direction:column;gap:4px;}
+  .field label{font-size:11px;font-weight:600;color:var(--ink-500);}
+  .field input, .field select{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:13px;
+    padding:6px 8px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink-900);
+    min-width:150px;
+  }
+  .field.small input{min-width:70px;}
+  .suggestion{font-size:11px;color:var(--ink-500);margin-top:2px;}
+  .suggestion.on{color:var(--teal-700);}
+  .suggestion.off{color:var(--coral-600);}
+
+  select.informatizado{font-weight:600;}
+  select.informatizado[data-val="sim"]{color:var(--teal-700);border-color:var(--teal-700);}
+  select.informatizado[data-val="nao"]{color:var(--coral-600);border-color:var(--coral-600);}
+  select.informatizado[data-val="decidir"]{color:var(--ochre-600);border-color:var(--ochre-600);}
+
+  .save-hint{margin-left:auto;font-size:11px;color:var(--ink-500);align-self:center;}
+
+  .summary{
+    background:var(--teal-950);
+    color:#fff;
+    border-radius:6px;
+    padding:16px 18px;
+    margin-top:26px;
+  }
+  .summary h3{margin:0 0 10px;font-size:14px;color:var(--sand-050);}
+  .summary ul{margin:0;padding-left:18px;}
+  .summary li{margin-bottom:5px;font-size:13px;}
+  .summary .empty{color:var(--teal-100);font-size:13px;}
+  .summary .tag{color:var(--ochre-100);font-weight:600;}
+
+  .actions{display:flex;gap:8px;margin-top:18px;}
+  .btn{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    padding:8px 14px;
+    border-radius:4px;
+    border:1px solid var(--teal-800);
+    background:#fff;
+    color:var(--teal-800);
+    cursor:pointer;
+  }
+  .btn.primary{background:var(--teal-800);color:#fff;}
+
+  @media print{
+    .tabs, .howto, .controls .save-hint, .actions{display:none !important;}
+    .day-panel{display:block !important;}
+    .tab{display:none;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <h1>Cronograma semanal — Informatização &amp; Técnicos</h1>
+      <p>Semana de 31/08 a 04/09/2026 · dados extraídos do PDF de escala</p>
+    </div>
+    <div class="sync-status" id="syncStatus">carregando…</div>
+  </header>
+
+  <details class="howto">
+    <summary>Como usar isso toda semana</summary>
+    <p>Toda semana que chegar um PDF novo, envie pra mim no chat e peça pra atualizar esta ferramenta — eu extraio as rotinas automaticamente e regenero a lista abaixo. Aqui você e a Ranícia só marcam <b>quem vai como técnico</b> e <b>se a rotina vai ser informatizada</b>. Rotinas em <b>Núcleo</b> já vêm sugeridas como <span style="color:var(--coral-600)">não informatizadas</span> (sem estrutura de internet). Rotinas em que <b>Vanuza</b> ou <b>Stephanie</b> aparecem como auxiliares já vêm sugeridas como <span style="color:var(--teal-700)">informatizadas</span> — confirme se esse critério está certo, me avise se eu deva ajustar a regra. Tudo o que vocês marcarem fica salvo automaticamente.</p>
+  </details>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+
+  <div class="summary" id="summary"></div>
+
+  <div class="actions">
+    <button class="btn primary" onclick="window.print()">Imprimir / exportar resumo</button>
+    <button class="btn" onclick="resetWeek()">Limpar marcações desta semana</button>
+  </div>
+</div>
+
+<script>
+const WEEK_KEY = "week-2026-08-31";
+const TECNICOS_KEY = "tecnicos-conhecidos";
+
+const days = [
+  {
+    key:"seg", label:"Segunda", date:"31/08/2026",
+    obs: "",
+    routines:[
+      {
+        id:"seg-01", num:"01",
+        title:"Espaço Social Abelhas da Mata Escura",
+        meta:"R Direta de Mata Escura — Mata Escura · Resp: Carine 98839-1733",
+        elet:false, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Lucas", auxiliares:["Stephanie","Ana Cláudia","Isabela","Ivana"]}
+        ]
+      },
+      {
+        id:"seg-02", num:"02",
+        title:"Feira de Saúde — Final de linha de São Gonçalo do Retiro",
+        meta:"São Gonçalo do Retiro · Resp: Maria da Paz 9386-0474 · AS: Taís · Hig: Selma, José",
+        elet:false, asResp:"Taís",
+        turnos:[
+          {unidade:"Unidade Móvel II", turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Paula", auxiliares:["Edilene","Suzana","Ana Alves"]},
+          {unidade:"Unidade Móvel II", turno:"MAT/VESP", especialidade:"Ortopedista (50)", profissional:"Iberê", auxiliares:["Nélia","Daniela (M)","Flávia"]},
+          {unidade:"Unidade Móvel IV", turno:"MAT/VESP", especialidade:"Odonto (20)", profissional:"Daniela M / Alessandra", auxiliares:["Ivete","Agda"]},
+          {unidade:"Unidade Móvel IV", turno:"MAT/VESP", especialidade:"Clínica Médica (40)", profissional:"Luzia", auxiliares:["Joseane","Denise"]},
+          {unidade:"Unidade Móvel VI", turno:"MAT/VESP", especialidade:"MMG (40)", profissional:"Beatriz", auxiliares:["Iracema","Maria"]},
+          {unidade:"Unidade Móvel VI", turno:"MAT/VESP", especialidade:"RX (30)", profissional:"Maibi", auxiliares:["Lidiane"]},
+          {unidade:"Unidade Móvel VI", turno:"MAT/VESP", especialidade:"Cardiologista (50)", profissional:"Mário", auxiliares:["Sayonara","Vanuza","Dionéia (M)"]}
+        ]
+      },
+      {
+        id:"seg-03", num:"03",
+        title:"Núcleo Pirajá — Instituto Arte de Cuidar",
+        meta:"Estrada de Pirajá, nº19 loja 01 — Pirajá · Resp: Vera Lúcia",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Elizete", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"seg-04", num:"04",
+        title:"Núcleo Valéria — Casa do Povo",
+        meta:"Rua Boca da Mata de Valéria — Valéria · Resp: Arley 99717-6980",
+        elet:false, asResp:"",
+        turnos:[{turno:"MATUTINO", especialidade:"Dermatologista (40)", profissional:"Mariane", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"seg-05", num:"05",
+        title:"Núcleo Subúrbio — Inst. Social Ebenezer",
+        meta:"Rua 01 de Abril — Periperi · Resp: Dely (AS) 98265-5875",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Edvan", auxiliares:["Equipe Núcleo"]}]
+      }
+    ]
+  },
+  {
+    key:"ter", label:"Terça", date:"01/09/2026",
+    obs: "Selma IBR (M) // José Rotina 01 (M) // Selma e José treinamento à tarde (IBR) · Stephanie: atividade interna · Ana Cláudia: folga",
+    routines:[
+      {
+        id:"ter-01", num:"01",
+        title:"Associação Amor ao Próximo Evanusia da Saúde",
+        meta:"Largo São Domingos — Calçada · Resp: Evanusia 98654-8290",
+        elet:true, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"Odonto (16)", profissional:"Daniela (M) / Marcelo", auxiliares:["Ivete","Agda","Dionéia (M)"]},
+          {turno:"MAT/VESP", especialidade:"Clínica Médica (40)", profissional:"Luzia", auxiliares:["Maria","Ivana"]}
+        ]
+      },
+      {
+        id:"ter-02", num:"02",
+        title:"Inst. Mª Xavier — Rua São Jorge",
+        meta:"Rua São Jorge, nº01 — Faz. Coutos · Resp: Paulinha 98786-9330",
+        elet:true, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Paula", auxiliares:["Edilene","Nélia","Suzana","Vanuza"]}]
+      },
+      {
+        id:"ter-03", num:"03",
+        title:"INAR / Instituto Ana Ribeiro",
+        meta:"Rua D. João VI, 63 — Periperi · Resp: Ana Ribeiro 99978-0565",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"Cardiologista (50)", profissional:"Mário / Sayonara", auxiliares:["Isabela","Joseane"]}]
+      },
+      {
+        id:"ter-04", num:"04",
+        title:"Mutirão de Saúde",
+        meta:"Santo Amaro",
+        elet:false, asResp:"Aline",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"José", auxiliares:["Ana Alves","Lidiane"]}]
+      },
+      {
+        id:"ter-05", num:"05",
+        title:"Núcleo da Liberdade / AFATA",
+        meta:"Estrada da Liberdade, 22 — Lapinha",
+        elet:false, asResp:"",
+        turnos:[{turno:"MATUTINO", especialidade:"Ginecologia (40)", profissional:"Lian", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"ter-06", num:"06",
+        title:"Núcleo São Cristóvão — Clínica Médica Sorrir Melhor",
+        meta:"Rua 1ª Travessa 3 de Maio, nº08 — São Cristóvão · Resp: Eliana 8157-7752",
+        elet:false, asResp:"",
+        turnos:[
+          {turno:"MATUTINO", especialidade:"Clínica Médica (16)", profissional:"Larissa", auxiliares:["Equipe Núcleo"]},
+          {turno:"VESPERTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}
+        ]
+      }
+    ]
+  },
+  {
+    key:"qua", label:"Quarta", date:"02/09/2026",
+    obs: "Selma Rotina 01 · José Rotina 04",
+    routines:[
+      {
+        id:"qua-01", num:"01",
+        title:"Ass. Benef. Cul. e Social da Mata Escura",
+        meta:"Rua Direta do Campo, nº13 — Mata Escura · Resp: Chineles 8662-5196",
+        elet:true, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Paula", auxiliares:["Edilene","Nélia","Ana Cláudia","Maria"]}]
+      },
+      {
+        id:"qua-02", num:"02",
+        title:"Projeto IDE",
+        meta:"Final de linha do bairro Santa Mônica — Santa Mônica · Resp: Pr André 99333-5341",
+        elet:false, asResp:"",
+        turnos:[{turno:"MATUTINO", especialidade:"Urologista (50)", profissional:"Acival", auxiliares:["Stephanie","Vanuza"]}]
+      },
+      {
+        id:"qua-03", num:"03",
+        title:"Instituto Vida",
+        meta:"Rua Fonte da Bica de Cima — São Caetano · Resp: Joselito 99904-3275",
+        elet:false, asResp:"",
+        turnos:[{turno:"VESPERTINO", especialidade:"Ginecologia (40)", profissional:"Robert", auxiliares:["Denise","Ivana"]}]
+      },
+      {
+        id:"qua-04", num:"04",
+        title:"Casa do Povo Derba",
+        meta:"Rua da Matriz, 02 — Valéria · Resp: Arley 99717-6980",
+        elet:true, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"Odonto (16)", profissional:"Daniela (M) / Marcelo", auxiliares:["Agda","Susana","Joseane"]},
+          {turno:"MAT/VESP", especialidade:"Preventivo (40)", profissional:"Sayonara / Isabela", auxiliares:["Equipe Núcleo"]}
+        ]
+      },
+      {
+        id:"qua-05", num:"05",
+        title:"Mutirão de Saúde",
+        meta:"Santo Amaro",
+        elet:false, asResp:"Aline",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"USG (100)", profissional:"José", auxiliares:["Iracema","Lidiane"]},
+          {turno:"MAT/VESP", especialidade:"Atend. Pediátrico (50)", profissional:"Stella", auxiliares:["Ana Alves"]}
+        ]
+      },
+      {
+        id:"qua-06", num:"06",
+        title:"Núcleo Pirajá — Instituto Arte de Cuidar",
+        meta:"Estrada de Pirajá, nº19 loja 01 — Pirajá · Resp: Vera Lúcia",
+        elet:false, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"Preventivo (40)", profissional:"Cristiane", auxiliares:["Equipe Núcleo"]},
+          {turno:"MATUTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}
+        ]
+      },
+      {
+        id:"qua-07", num:"07",
+        title:"Núcleo Valéria — Casa do Povo",
+        meta:"Rua Boca da Mata de Valéria — Valéria · Resp: Arley 99717-6980",
+        elet:false, asResp:"",
+        turnos:[{turno:"VESPERTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"qua-08", num:"08",
+        title:"Núcleo Subúrbio — Inst. Social Ebenezer",
+        meta:"Rua 01 de Abril — Periperi · Resp: Dely (AS) 98265-5875",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Edvan", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"qua-09", num:"09",
+        title:"Núcleo Federação / Ass. Companheiro do Bem",
+        meta:"Rua Pedro Gama, nº710 — Federação · Resp: Joseana 71984362594",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"Clínica Médica (16)", profissional:"Larissa", auxiliares:["Equipe Núcleo"]}]
+      }
+    ]
+  },
+  {
+    key:"qui", label:"Quinta", date:"03/09/2026",
+    obs: "Selma Rotina 01 · José Rotina 03",
+    routines:[
+      {
+        id:"qui-01", num:"01",
+        title:"Capela São Roque (Instituto Semeadores da Paz)",
+        meta:"Rua 11 de Agosto, 45 — Vasco da Gama · Resp: Lenilda 98729-8657",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Paula", auxiliares:["Edilene","Ana Cláudia","Vanuza","Dionéia (M)"]}]
+      },
+      {
+        id:"qui-02", num:"02",
+        title:"Centro Comunitário Unidos pelo Social",
+        meta:"Rua Wenceslau Galo, nº13 — Cosme de Farias · Resp: Marta 98851-7912",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"Cardiologista (40)", profissional:"Odecil", auxiliares:["Joseane","Susana"]}]
+      },
+      {
+        id:"qui-03", num:"03",
+        title:"Instituto Jovelina Docílio",
+        meta:"Rua Porto Seguro, nº15 — Novo Horizonte · Resp: Mateus 98124-1522",
+        elet:true, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"Odonto (16)", profissional:"Daniela (M) / Alessandra", auxiliares:["Agda","Lidiane"]},
+          {turno:"MAT/VESP", especialidade:"Clínica Médica (40)", profissional:"Matheus", auxiliares:["Stephanie","Ivete"]}
+        ]
+      },
+      {
+        id:"qui-04", num:"04",
+        title:"São João do Cabrito Plataforma",
+        meta:"Rua Oliveira, 20 · Resp: Dalmo 99315-5353 / Daniele 98786-7677",
+        elet:false, asResp:"Taís",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Elizete", auxiliares:["Iracema","Nélia","Sayonara"]},
+          {turno:"MAT/VESP", especialidade:"Clínica Médica (50)", profissional:"Bruna", auxiliares:["Ivana","Denise"]},
+          {turno:"MAT/VESP", especialidade:"Ginecologia (40)", profissional:"Ana Gabriella", auxiliares:["Maria","Isabela"]}
+        ]
+      },
+      {
+        id:"qui-05", num:"05",
+        title:"Núcleo da Liberdade / AFATA",
+        meta:"Estrada da Liberdade, 22 — Lapinha",
+        elet:false, asResp:"",
+        turnos:[{turno:"VESPERTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"qui-06", num:"06",
+        title:"Núcleo Valéria — Casa do Povo",
+        meta:"Rua Boca da Mata de Valéria — Valéria · Resp: Arley 99717-6980",
+        elet:false, asResp:"",
+        turnos:[{turno:"VESPERTINO", especialidade:"Ortopedista (30)", profissional:"Gabriel", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"qui-07", num:"07",
+        title:"Núcleo Federação / Ass. Companheiro do Bem",
+        meta:"Rua Pedro Gama, nº710 — Federação · Resp: Joseana 71984362594",
+        elet:false, asResp:"",
+        turnos:[{turno:"MATUTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"qui-08", num:"08",
+        title:"Núcleo Maragogipe / Inst. Inspirando Vidas",
+        meta:"Rua Cabaceiras — Maragogipe",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"José", auxiliares:["Equipe Núcleo"]}]
+      }
+    ]
+  },
+  {
+    key:"sex", label:"Sexta", date:"04/09/2026",
+    obs: "José Rotina 01 · Selma Rotina 03",
+    routines:[
+      {
+        id:"sex-01", num:"01",
+        title:"Travessa Isaías Alves de Almeida",
+        meta:"S/N — Costa Azul · Resp: Merian 98160-7738",
+        elet:true, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Paula", auxiliares:["Stephanie","Joseane","Ivana","Dioneia (M)"]}]
+      },
+      {
+        id:"sex-02", num:"02",
+        title:"Associação Desportiva 02 de Julho",
+        meta:"Rua Jamaica, S/N — Bairro da Paz · Resp: Jamile 98801-1299",
+        elet:false, asResp:"",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"Ortopedista (50)", profissional:"Gabriel", auxiliares:["Ana Alves"]},
+          {turno:"MAT/VESP", especialidade:"Atend. Pediátrico (50)", profissional:"Matheus", auxiliares:["Vanuza"]}
+        ]
+      },
+      {
+        id:"sex-03", num:"03",
+        title:"Associação Salvando Vidas",
+        meta:"Travessa Inácio Mendes, 24 — Arenoso · Resp: Edson 99315-5353",
+        elet:false, asResp:"Ana Cláudia",
+        turnos:[
+          {turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Elizete", auxiliares:["Edilene","Sayonara","Susana"]},
+          {turno:"MAT/VESP", especialidade:"Clínica Médica (50)", profissional:"Alana", auxiliares:["Isabela","Denise"]},
+          {turno:"MAT/VESP", especialidade:"Ginecologia (40)", profissional:"Ana Gabriella", auxiliares:["Maria"]}
+        ]
+      },
+      {
+        id:"sex-04", num:"04",
+        title:"Núcleo Valéria — Casa do Povo",
+        meta:"Rua Boca da Mata de Valéria — Valéria · Resp: Arley 99717-6980",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"Odonto (16)", profissional:"Daniela M / Alessandra T", auxiliares:["Ivete","Lidiane"]}]
+      },
+      {
+        id:"sex-05", num:"05",
+        title:"Núcleo Pirajá — Instituto Arte de Cuidar",
+        meta:"Estrada de Pirajá, nº19 loja 01 — Pirajá · Resp: Vera Lúcia",
+        elet:false, asResp:"",
+        turnos:[{turno:"MAT/VESP", especialidade:"USG (100)", profissional:"Lucas", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"sex-06", num:"06",
+        title:"Núcleo da Sete de Abril / Casinha Amarela",
+        meta:"Rua Nossa Sra. do Carmo, S/N — Sete de Abril · Resp: Nilson",
+        elet:false, asResp:"",
+        turnos:[{turno:"MATUTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}]
+      },
+      {
+        id:"sex-07", num:"07",
+        title:"Núcleo Subúrbio — Inst. Social Ebenezer",
+        meta:"Rua 01 de Abril — Periperi · Resp: Dely (AS) 98265-5875",
+        elet:false, asResp:"",
+        turnos:[{turno:"VESPERTINO", especialidade:"Urologista (50)", profissional:"Cassius", auxiliares:["Equipe Núcleo"]}]
+      }
+    ]
+  }
+];
+
+function isNucleo(routine){
+  return /núcleo|nucleo/i.test(routine.title);
+}
+function hasFlagPerson(routine){
+  const names = routine.turnos.flatMap(t => t.auxiliares).join(" ").toLowerCase();
+  return names.includes("vanuza") || names.includes("stephanie");
+}
+function suggestion(routine){
+  if(isNucleo(routine)) return {val:"nao", reason:"núcleo — sem estrutura de internet"};
+  if(hasFlagPerson(routine)) return {val:"sim", reason:"Vanuza/Stephanie na equipe"};
+  return {val:"decidir", reason:"depende de internet local / Starlink"};
+}
+
+let state = {};
+let tecnicosConhecidos = [];
+
+async function loadAll(){
+  try{
+    const r = await window.storage.get(WEEK_KEY, true);
+    state = r ? JSON.parse(r.value) : {};
+  }catch(e){ state = {}; }
+  try{
+    const r2 = await window.storage.get(TECNICOS_KEY, true);
+    tecnicosConhecidos = r2 ? JSON.parse(r2.value) : [];
+  }catch(e){ tecnicosConhecidos = []; }
+  render();
+}
+
+async function saveState(){
+  const statusEl = document.getElementById('syncStatus');
+  try{
+    statusEl.textContent = "salvando…";
+    await window.storage.set(WEEK_KEY, JSON.stringify(state), true);
+    statusEl.textContent = "salvo — visível para quem tem este link";
+  }catch(e){
+    statusEl.textContent = "não foi possível salvar agora";
+  }
+}
+async function saveTecnicos(){
+  try{ await window.storage.set(TECNICOS_KEY, JSON.stringify(tecnicosConhecidos), true); }catch(e){}
+}
+
+function getEntry(id, routine){
+  if(!state[id]){
+    const s = suggestion(routine);
+    state[id] = {tecnico:"", informatizado: s.val === "sim" || s.val === "nao" ? s.val : "", impressoras:"", suggestionReason: s.reason, suggestionVal: s.val};
+  }
+  return state[id];
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = days.map((d,i) =>
+    `<button class="tab${i===0?' active':''}" data-day="${d.key}" onclick="switchDay('${d.key}')">${d.label}<span class="d">${d.date}</span></button>`
+  ).join("");
+}
+
+function switchDay(key){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.day===key));
+  document.querySelectorAll('.day-panel').forEach(p => p.classList.toggle('active', p.dataset.day===key));
+}
+
+function renderPanels(){
+  const panels = document.getElementById('panels');
+  panels.innerHTML = days.map((d,i) => `
+    <section class="day-panel${i===0?' active':''}" data-day="${d.key}">
+      ${d.obs ? `<div class="obs-bar"><b>Observações do dia:</b> ${d.obs}</div>` : ""}
+      ${d.routines.map(r => renderRoutine(r)).join("")}
+    </section>
+  `).join("");
+}
+
+function renderRoutine(r){
+  const entry = getEntry(r.id, r);
+  const badges = [];
+  if(isNucleo(r)) badges.push(`<span class="badge">núcleo</span>`);
+  if(r.elet) badges.push(`<span class="badge warn">eletricista a definir</span>`);
+  if(r.asResp) badges.push(`<span class="badge">AS: ${r.asResp}</span>`);
+
+  const rows = r.turnos.map(t => `
+    ${t.unidade ? `<tr><td colspan="4" class="unidade-label">${t.unidade}</td></tr>` : ""}
+    <tr>
+      <td>${t.turno}</td>
+      <td>${t.especialidade}</td>
+      <td>${t.profissional}</td>
+      <td>${t.auxiliares.join(", ")}</td>
+    </tr>
+  `).join("");
+
+  const suggClass = entry.suggestionVal === "sim" ? "on" : entry.suggestionVal === "nao" ? "off" : "";
+
+  return `
+  <div class="routine">
+    <div class="routine-head">
+      <span class="num">R${r.num}</span><span class="title">${r.title}</span>
+      <div class="meta">${r.meta}</div>
+      ${badges.length ? `<div class="badges">${badges.join("")}</div>` : ""}
+    </div>
+    <table class="turnos">
+      <tr><th>Turno</th><th>Especialidade</th><th>Profissional</th><th>Auxiliares</th></tr>
+      ${rows}
+    </table>
+    <div class="controls">
+      <div class="field">
+        <label>Técnico de TI</label>
+        <input list="tecnicos-list" value="${entry.tecnico}" placeholder="nome do técnico"
+          onchange="updateField('${r.id}','tecnico', this.value)">
+      </div>
+      <div class="field">
+        <label>Informatização</label>
+        <select class="informatizado" data-val="${entry.informatizado}" onchange="updateField('${r.id}','informatizado', this.value); this.dataset.val=this.value;">
+          <option value="" ${entry.informatizado===""?"selected":""}>— selecionar —</option>
+          <option value="sim" ${entry.informatizado==="sim"?"selected":""}>Sim</option>
+          <option value="nao" ${entry.informatizado==="nao"?"selected":""}>Não</option>
+          <option value="decidir" ${entry.informatizado==="decidir"?"selected":""}>A decidir</option>
+        </select>
+        <span class="suggestion ${suggClass}">sugestão: ${entry.suggestionReason}</span>
+      </div>
+      <div class="field small">
+        <label>Impressoras</label>
+        <input type="number" min="0" value="${entry.impressoras}" placeholder="0"
+          onchange="updateField('${r.id}','impressoras', this.value)">
+      </div>
+      <span class="save-hint" id="hint-${r.id}"></span>
+    </div>
+  </div>`;
+}
+
+function updateField(id, field, value){
+  if(!state[id]) state[id] = {};
+  state[id][field] = value;
+  if(field === "tecnico" && value && !tecnicosConhecidos.includes(value)){
+    tecnicosConhecidos.push(value);
+    saveTecnicos();
+    renderDatalist();
+  }
+  saveState();
+  renderSummary();
+}
+
+function renderDatalist(){
+  let dl = document.getElementById('tecnicos-list');
+  if(!dl){
+    dl = document.createElement('datalist');
+    dl.id = 'tecnicos-list';
+    document.body.appendChild(dl);
+  }
+  dl.innerHTML = tecnicosConhecidos.map(n => `<option value="${n}">`).join("");
+}
+
+function renderSummary(){
+  const el = document.getElementById('summary');
+  let html = `<h3>Resumo — rotinas informatizadas nesta semana</h3>`;
+  let any = false;
+  days.forEach(d => {
+    const list = d.routines.filter(r => state[r.id] && state[r.id].informatizado === "sim");
+    if(list.length){
+      any = true;
+      html += `<p style="margin:12px 0 4px;font-weight:600;">${d.label} (${d.date})</p><ul>`;
+      list.forEach(r => {
+        const e = state[r.id];
+        html += `<li>R${r.num} — ${r.title} · técnico: <span class="tag">${e.tecnico || "a definir"}</span>${e.impressoras ? ` · ${e.impressoras} impressora(s)` : ""}</li>`;
+      });
+      html += `</ul>`;
+    }
+  });
+  if(!any) html += `<p class="empty">Nenhuma rotina marcada como informatizada ainda.</p>`;
+  el.innerHTML = html;
+}
+
+async function resetWeek(){
+  state = {};
+  await saveState();
+  render();
+}
+
+function render(){
+  renderTabs();
+  renderPanels();
+  renderDatalist();
+  renderSummary();
+}
+
+loadAll();
+</script>
+</body>
+</html>
